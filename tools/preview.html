@@ -8,7 +8,8 @@ const role = previewParams.get('role') === 'mosaic' ? 'mosaic' : 'main';
 let viewerState={managed:true,role,visible:false,presentation:'side',preparing:false};
 let stateHandler;
 history.replaceState(null,'',new URL(FazendaViewer.urls[role==='mosaic'?6:0]).pathname);
-window.chrome={runtime:{onMessage:{addListener(fn){stateHandler=fn;}},async sendMessage(message){
+let preferenceHandler;
+window.chrome={storage:{local:{async get(defaults){const saved=localStorage.getItem('keyboardShortcutsEnabled');return {...defaults,...(saved===null?{}:{keyboardShortcutsEnabled:saved==='true'})};},async set(values){const oldValue=localStorage.getItem('keyboardShortcutsEnabled')!=='false';localStorage.setItem('keyboardShortcutsEnabled',String(values.keyboardShortcutsEnabled));preferenceHandler?.({keyboardShortcutsEnabled:{oldValue,newValue:values.keyboardShortcutsEnabled}},'local');}},onChanged:{addListener(fn){preferenceHandler=fn;}}},runtime:{onMessage:{addListener(fn){stateHandler=fn;}},async sendMessage(message){
   if(message.type==='state')return viewerState;
   if(message.type==='select'){
     const path=new URL(FazendaViewer.urls[message.signal-1]).pathname;

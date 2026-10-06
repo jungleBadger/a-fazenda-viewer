@@ -11,6 +11,7 @@
   let visible = false;
   let presentation = 'side';
   let preparing = false;
+  let shortcutsEnabled = true;
   const watchedVideos = new WeakSet();
   let host, root;
   const send = async message => {
@@ -40,6 +41,20 @@
   }
   function report(error) {
     if (root) root.getElementById('status').textContent = `${error.message} Se você atualizou a extensão, recarregue esta página.`;
+  }
+  function reflectShortcuts() {
+    if (!root) return;
+    root.getElementById('shortcuts-enabled').checked = shortcutsEnabled;
+    for (const button of [...root.querySelectorAll('[data-signal]'), root.getElementById('toggle')]) {
+      const key = button.dataset.signal || 'M';
+      if (shortcutsEnabled) {
+        button.setAttribute('aria-keyshortcuts', key);
+        button.setAttribute('title', `Tecla ${key}`);
+      } else {
+        button.removeAttribute('aria-keyshortcuts');
+        button.removeAttribute('title');
+      }
+    }
   }
   async function selectSignal(signal) {
     const current = location.pathname.split('/').pop();
@@ -90,16 +105,26 @@
     currentRole = role;
     host = document.createElement('div');
     host.id = 'fazenda-local-controls';
+    host.lang = 'pt-BR';
     host.style.cssText = 'position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:2147483647!important;';
     root = host.attachShadow({ mode: 'open' });
-    root.innerHTML = `<style>${FazendaViewer.styles}</style><div class="bar" role="toolbar" aria-label="Controles do Fazenda viewer">
+    root.innerHTML = `<style>${FazendaViewer.styles}</style><div class="bar" role="group" aria-label="Controles do Fazenda viewer">
     <div class="brand"><strong>${role === 'mosaic' ? 'Mosaico' : 'Fazenda viewer'}</strong><span class="badge">${role === 'mosaic' ? 'Sem som' : 'F18'}</span></div>
     <div class="channels" role="group" aria-label="Selecionar sinal principal">
-    ${Array.from({length:6}, (_, i) => `<button data-signal="${i+1}" aria-keyshortcuts="${i+1}" title="Tecla ${i+1}">Sinal ${i+1}</button>`).join('')}
+    ${Array.from({length:6}, (_, i) => `<button type="button" data-signal="${i+1}">Sinal ${i+1}</button>`).join('')}
     </div><div class="modes" role="group" aria-label="Exibir mosaico">
-    <button class="view-action" id="toggle" aria-pressed="false" aria-keyshortcuts="M" title="M: abrir ou fechar o miniplayer do mosaico">Mosaico flutuante</button><button id="side" aria-pressed="false">Ver lado a lado</button>
-    ${role === 'mosaic' ? '<button id="return-main">Voltar ao sinal</button>' : ''}</div>
-    <span class="shortcuts"><kbd>1–6</kbd> sinais <span aria-hidden="true">·</span> <kbd>M</kbd> mosaico</span></div>
+    <button type="button" class="view-action" id="toggle" aria-pressed="false">Mosaico flutuante</button><button type="button" id="side" aria-pressed="false">Ver lado a lado</button>
+    ${role === 'mosaic' ? '<button type="button" id="return-main">Voltar ao sinal</button>' : ''}</div>
+    <div class="overflow" id="more-group">
+      <button type="button" class="more-button" id="more" aria-label="Mais opções" aria-expanded="false" aria-controls="more-panel"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>
+      <section class="more-panel" id="more-panel" aria-label="Atalhos e projeto" hidden>
+        <h2>Atalhos de teclado</h2>
+        <dl class="shortcut-list"><dt><kbd>1 a 6</kbd></dt><dd>Trocar o sinal principal</dd><dt><kbd>M</kbd></dt><dd>${role === 'mosaic' ? 'Abrir ou fechar o miniplayer' : 'Preparar ou fechar o mosaico flutuante'}</dd></dl>
+        <label class="shortcut-setting"><input type="checkbox" id="shortcuts-enabled" checked>Ativar atalhos de teclado</label>
+        <p>Funcionam nesta página, fora de campos de texto. Para abrir o miniplayer, use M na aba do mosaico.</p>
+        <a class="github-link" id="github-link" href="https://github.com/jungleBadger/a-fazenda-viewer" target="_blank" rel="noopener noreferrer">Projeto no GitHub<span aria-hidden="true">↗</span><span class="sr-only"> (abre em nova aba)</span></a>
+      </section>
+    </div></div>
     <div class="hint" id="pip-hint" hidden>Espere o vídeo carregar e clique em <strong>Abrir miniplayer</strong> (ou pressione M). Você volta ao sinal principal. Deixe esta aba aberta.</div><div class="status" role="status" id="status"></div>`;
     document.documentElement.append(host);
     const perform = async action => {
@@ -116,8 +141,42 @@
       const state = await send({type:'toggle'}); visible = Boolean(state.visible); preparing = false; presentation = 'side'; reflect();
     }));
     root.getElementById('return-main')?.addEventListener('click', () => perform(() => send({type:'return-main'})));
+    const more = root.getElementById('more');
+    const morePanel = root.getElementById('more-panel');
+    const moreGroup = root.getElementById('more-group');
+    const setMoreOpen = (open, returnFocus = false) => {
+      more.setAttribute('aria-expanded', String(open));
+      morePanel.hidden = !open;
+      if (returnFocus) more.focus();
+    };
+    more.addEventListener('click', () => setMoreOpen(morePanel.hidden));
+    moreGroup.addEventListener('focusout', event => {
+      if (event.relatedTarget && !moreGroup.contains(event.relatedTarget)) setMoreOpen(false);
+    });
+    window.addEventListener('pointerdown', event => {
+      if (!event.composedPath().includes(moreGroup)) setMoreOpen(false);
+    }, {capture:true});
+    root.getElementById('shortcuts-enabled').addEventListener('change', event => {
+      shortcutsEnabled = event.target.checked;
+      reflectShortcuts();
+      chrome.storage.local.set({keyboardShortcutsEnabled:shortcutsEnabled}).catch(report);
+    });
+    reflectShortcuts();
     // Capture shortcuts before the player handles number seeking or M for mute.
     window.addEventListener('keydown', event => {
+      if (!morePanel.hidden) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          setMoreOpen(false, true);
+        } else if (/^[1-6m]$/i.test(event.key) && !event.ctrlKey && !event.metaKey && !event.altKey && !event.isComposing) {
+          // Keep help available without triggering playback shortcuts on either page.
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+        return;
+      }
+      if (!shortcutsEnabled) return;
       if (event.ctrlKey || event.metaKey || event.altKey || event.isComposing) return;
       // composedPath includes fields inside our toolbar and the site's shadow DOM.
       if (event.composedPath().some(node => node.isContentEditable || node.matches?.('input,textarea,select,[role="textbox"],[role="combobox"]'))) return;
@@ -178,11 +237,19 @@
       if (visible || preparing) video.play().catch(() => {}); else video.pause();
     }
   });
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.keyboardShortcutsEnabled) {
+      shortcutsEnabled = changes.keyboardShortcutsEnabled.newValue !== false;
+      reflectShortcuts();
+    }
+  });
   let attempts = 0;
   async function connect() {
     try {
       const state = await send({type:'state'});
       if (state?.managed) {
+        const preferences = await chrome.storage.local.get({keyboardShortcutsEnabled:true});
+        shortcutsEnabled = preferences.keyboardShortcutsEnabled !== false;
         visible = state.visible;
         preparing = Boolean(state.preparing);
         presentation = state.presentation || 'side';

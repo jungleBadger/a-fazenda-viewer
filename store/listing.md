@@ -30,7 +30,7 @@ Facilitar a visualização de A Fazenda 18 no RecordPlus, com seleção dos sina
 
 ## Justificativas de permissões
 
-`storage`: salvar IDs de abas/janelas, dimensões e estado de exibição em `chrome.storage.session`, apenas no dispositivo, para reutilizar o mosaico e restaurar as janelas.
+`storage`: salvar IDs de abas/janelas, dimensões e estado de exibição em `chrome.storage.session`, apenas no dispositivo, para reutilizar o mosaico e restaurar as janelas. Guardar a preferência de ativar ou desativar os atalhos em `chrome.storage.local`.
 
 Permissões de host do RecordPlus: injetar os controles nas páginas oficiais e acompanhar o elemento de vídeo e seu estado nas abas gerenciadas pelo viewer.
 
