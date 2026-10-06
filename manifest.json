@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Fazenda viewer • F18",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Ferramenta independente para A Fazenda 18: atalhos entre seis sinais e mosaico flutuante ou lado a lado no RecordPlus.",
   "permissions": [
     "storage"
@@ -28,6 +28,7 @@
       ],
       "js": [
         "viewer-ui.js",
+        "toolbar.js",
         "transition.js",
         "content.js"
       ],
@@ -40,5 +41,11 @@
     "32": "icons/icon-32.png",
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["fonts/Teko-Bold.ttf"],
+      "matches": ["https://www.recordplus.com/*", "https://recordplus.com/*"]
+    }
+  ]
 }

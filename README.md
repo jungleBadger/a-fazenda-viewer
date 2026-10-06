@@ -8,10 +8,10 @@ Usa os players originais e sua sessão normal do Chrome. Você precisa de sua pr
 
 ## Instalar ou atualizar
 
-A versão **1.3.0** está em preparação para a Chrome Web Store; ainda não há um link aprovado da loja. Esta versão é específica para **A Fazenda 18**.
+A versão de teste **1.3.1** está disponível no GitHub. A publicação na Chrome Web Store está adiada; ainda não há um link aprovado da loja. Esta versão é específica para **A Fazenda 18**.
 
-1. Baixe e extraia o ZIP do [código atual](https://github.com/jungleBadger/a-fazenda-viewer/archive/refs/heads/main.zip).
-2. Abra `chrome://extensions`. Ative **Modo do desenvolvedor**, clique em **Carregar sem compactação** e selecione a pasta com `manifest.json`. Para atualizar uma pasta já instalada, clique em **Recarregar**.
+1. Baixe e extraia `a-fazenda-viewer-1.3.1.zip` na [versão de teste](https://github.com/jungleBadger/a-fazenda-viewer/releases/tag/v1.3.1-rc.1).
+2. Abra `chrome://extensions`. Ative **Modo do desenvolvedor**, clique em **Carregar sem compactação** e selecione a pasta com `manifest.json`. Para atualizar, substitua os arquivos da pasta já instalada pelos do ZIP e clique em **Recarregar**.
 3. Feche as janelas antigas do viewer e clique no ícone da extensão para abrir a nova versão.
 
 ## Usar
@@ -20,12 +20,14 @@ Escolha **Sinal 1–6** ou use as teclas **1–6**. **Mosaico flutuante** prepar
 
 **Mais opções** (⋮), à direita, reúne os atalhos e o link do GitHub. Você pode desligar as teclas **1–6** e **M** ali; os botões continuam funcionando.
 
+Para deixar mais espaço para o vídeo, ative **Ocultar barra automaticamente** nesse menu. A barra reaparece no topo ou com **Alt + Shift + F** e permanece aberta enquanto você usa os controles. Por padrão, ela fica visível.
+
 [Guia completo de uso](docs/usage.md) · [Suporte no GitHub](https://github.com/jungleBadger/a-fazenda-viewer/issues)
 
 ## Sobre o projeto
 
 - [Changelog](CHANGELOG.md)
-- [Licença MIT](LICENSE)
+- [Licença MIT](LICENSE) · [licença da fonte Teko](fonts/OFL.txt)
 - [Política de privacidade](docs/privacy-policy.md)
 - [Desenvolvimento e verificação](docs/development.md)
 - [Revisão de UX/UI e acessibilidade](docs/ux-review.md)

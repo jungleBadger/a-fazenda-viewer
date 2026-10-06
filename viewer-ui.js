@@ -4,9 +4,10 @@
   globalThis.FazendaViewer = {
     urls: codes.map(code => `https://www.recordplus.com/player/channel/${code}`),
     styles: `
-      :host{all:initial;display:block;color-scheme:dark;background:rgba(23,26,23,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid #ffffff12;box-shadow:0 3px 14px #0003}*{box-sizing:border-box}
+      :host{all:initial;display:block;color-scheme:dark}*{box-sizing:border-box}.surface{background:rgba(23,26,23,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid #ffffff12;box-shadow:0 3px 14px #0003}.surface[data-auto-hide=true]{position:absolute;top:0;left:0;right:0;transition:transform .16s ease-out}.surface[data-collapsed=true]{transform:translateY(calc(-100% - 2px));pointer-events:none}
+      .reveal-button{position:absolute;top:0;left:50%;transform:translateX(-50%);min-height:28px;padding:3px 12px;border-radius:0 0 8px 8px;background:#20261fe8;font:600 12px/20px system-ui,sans-serif;color:#e0e5dc}.reveal-button[hidden]{display:none}
       .bar{color:#f1f2ed;font:14px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:flex;gap:20px;align-items:center;flex-wrap:wrap;padding:12px 20px}
-      .brand,.channels,.modes{display:flex;align-items:center}.brand{gap:8px;white-space:nowrap}.brand strong{font-size:14px;font-weight:650;letter-spacing:-.2px}.badge{font-size:11px;font-weight:600;letter-spacing:.3px;color:#c1c7bb;border:1px solid #3b4337;border-radius:5px;padding:3px 5px}
+      .brand,.channels,.modes{display:flex;align-items:center}.brand{gap:8px;white-space:nowrap}.brand-name{display:flex;align-items:baseline;gap:6px}.brand strong{font-family:"Fazenda Display","Arial Narrow",Impact,sans-serif;font-size:24px;line-height:1;font-weight:700;letter-spacing:.5px;text-transform:uppercase}.brand-kind{font-size:11px;font-weight:500;color:#c1c7bb;letter-spacing:.2px}.badge{font-size:11px;font-weight:600;letter-spacing:.3px;color:#c1c7bb;border:1px solid #3b4337;border-radius:5px;padding:3px 5px}
       .channels{gap:6px}.modes{gap:8px;border-left:1px solid #3b4337;padding-left:20px}
       button{font:inherit;font-size:13px;font-weight:600;line-height:20px;min-height:40px;white-space:nowrap;cursor:pointer;border:1px solid #3d453a;background:#222720;color:#e0e5dc;border-radius:8px;padding:9px 12px;box-shadow:inset 0 1px 0 #ffffff08;transition:background-color .12s,border-color .12s}
       button:hover{background:#30382b;border-color:#616d55}.channels button[aria-pressed=true]{background:#e3c879;border-color:#e3c879;color:#25271e;box-shadow:none}
@@ -20,9 +21,9 @@
       @media(max-width:760px){.brand{grid-column:1/-1}.channels{grid-column:1/-1;grid-row:2}.modes,.overflow{grid-row:3}.more-panel{max-height:calc(100dvh - 200px)}}
       @media(max-width:420px){.modes{gap:6px}.modes button{padding:9px 8px}}
       @media(max-width:360px){.bar{column-gap:8px}.channels{grid-template-columns:repeat(3,minmax(0,1fr))}.modes button{padding-left:6px;padding-right:6px}.more-panel{max-height:calc(100dvh - 240px)}}
-      @media(prefers-reduced-motion:reduce){button{transition:none}}
-      @media(prefers-reduced-transparency:reduce){:host{background:#171a17;-webkit-backdrop-filter:none;backdrop-filter:none}}
-      @media(forced-colors:active){:host,.more-panel{background:Canvas;color:CanvasText}.more-panel,.github-link{border-color:CanvasText}.channels button[aria-pressed=true],.modes button[aria-pressed=true],.more-button[aria-expanded=true]{outline:2px solid Highlight;outline-offset:-4px}.github-link{color:LinkText}button:focus-visible,a:focus-visible,input:focus-visible{outline-color:Highlight}}
+      @media(prefers-reduced-motion:reduce){button,.surface{transition:none}}
+      @media(prefers-reduced-transparency:reduce){.surface,.reveal-button{background:#171a17;-webkit-backdrop-filter:none;backdrop-filter:none}}
+      @media(forced-colors:active){.surface,.more-panel,.reveal-button{background:Canvas;color:CanvasText}.more-panel,.github-link{border-color:CanvasText}.channels button[aria-pressed=true],.modes button[aria-pressed=true],.more-button[aria-expanded=true]{outline:2px solid Highlight;outline-offset:-4px}.github-link{color:LinkText}button:focus-visible,a:focus-visible,input:focus-visible{outline-color:Highlight}}
     `
   };
 })();

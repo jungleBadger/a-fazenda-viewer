@@ -4,9 +4,10 @@ const { readFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { runInNewContext } = require('node:vm');
 const source = readFileSync(join(__dirname, '..', 'content.js'), 'utf8');
+const toolbarSource = readFileSync(join(__dirname, '..', 'toolbar.js'), 'utf8');
 const flush = () => new Promise(resolve => setImmediate(resolve));
-async function harness({ role='mosaic', blocked=false, ready=true, shortcutsEnabled=true }={}) {
-  const messages=[], listeners={}, handlers={}, videoEvents={}, transitions=[], preferences={keyboardShortcutsEnabled:shortcutsEnabled};
+async function harness({ role='mosaic', blocked=false, ready=true, shortcutsEnabled=true, toolbarAutoHide=false }={}) {
+  const messages=[], listeners={}, handlers={}, videoEvents={}, transitions=[], preferences={keyboardShortcutsEnabled:shortcutsEnabled,toolbarAutoHide};
   let gesture=false, requested=0, paused=0, keyHandler, runtimeHandler, storageHandler;
   const state={managed:true,role,visible:false,presentation:'pip',preparing:true};
   const element = () => ({textContent:'',hidden:false,dataset:{},attrs:{},
@@ -15,9 +16,10 @@ async function harness({ role='mosaic', blocked=false, ready=true, shortcutsEnab
     addEventListener(name,fn){this[name]=fn;},click(){this.clickHandler?.();}
   });
   const buttons=Array.from({length:6},(_,i)=>Object.assign(element(),{dataset:{signal:String(i+1)}}));
-  const ids=Object.fromEntries(['toggle','side','return-main','status','pip-hint','more','more-panel','more-group','shortcuts-enabled','github-link'].map(id=>[id,element()]));
+  const ids=Object.fromEntries(['toggle','side','return-main','status','pip-hint','more','more-panel','more-group','shortcuts-enabled','github-link','viewer-surface','reveal-controls','toolbar-auto-hide'].map(id=>[id,element()]));
   ids['more-panel'].hidden=true;
   ids['more-group'].contains=node=>['more','more-panel','shortcuts-enabled','github-link'].some(id=>ids[id]===node);
+  ids['viewer-surface'].contains=node=>Boolean(node)&&node!==ids['reveal-controls'];
   for(const button of [...buttons,...Object.values(ids)]) button.addEventListener=(name,fn)=>{button[name==='click'?'clickHandler':name]=fn;};
   const root={innerHTML:'',getElementById:id=>ids[id],querySelectorAll:()=>buttons};
   const host={style:{},isConnected:false,attachShadow:()=>root,getBoundingClientRect:()=>({height:60})};
@@ -33,11 +35,11 @@ async function harness({ role='mosaic', blocked=false, ready=true, shortcutsEnab
   const chrome={storage:{local:{
     async get(defaults){return {...defaults,...preferences};},
     async set(update){Object.assign(preferences,update);}
-  },onChanged:{addListener(fn){storageHandler=fn;}}},runtime:{onMessage:{addListener(fn){runtimeHandler=fn;}},
+  },onChanged:{addListener(fn){storageHandler=fn;}}},runtime:{getURL:path=>'https://extension.invalid/'+path,onMessage:{addListener(fn){runtimeHandler=fn;}},
     async sendMessage(message){messages.push(message);if(message.type==='state')return state;if(message.type==='floating')return {visible:false,presentation:'pip',preparing:true};return {ok:true};}
   }};
   const urls=Array.from({length:7},(_,i)=>`https://www.recordplus.com/player/channel/s${i+1}`);
-  runInNewContext(source,{window,document,chrome,FazendaViewer:{urls},FazendaTransition:{show(until,signal){if(until)transitions.push({signal});},finish(){},resize(){}},URL,location:{href:urls[0],pathname:'/player/channel/s1'},MutationObserver:class{observe(){}},setInterval(){},setTimeout(){},requestAnimationFrame(fn){fn();},console});
+  runInNewContext(toolbarSource+'\n'+source,{window,document,chrome,FazendaViewer:{urls},FazendaTransition:{show(until,signal){if(until)transitions.push({signal});},finish(){},resize(){}},URL,location:{href:urls[0],pathname:'/player/channel/s1'},MutationObserver:class{observe(){}},setInterval(){},setTimeout(){},clearTimeout(){},requestAnimationFrame(fn){fn();},console});
   await flush();
   return {messages,video,ids,listeners,transitions,root,preferences,get requested(){return requested;},get paused(){return paused;},
     async click(id){gesture=true;ids[id].click();gesture=false;await flush();},
@@ -49,6 +51,7 @@ async function harness({ role='mosaic', blocked=false, ready=true, shortcutsEnab
     pointer(path){handlers.pointerdown({composedPath:()=>path});},
     async changeShortcuts(enabled){ids['shortcuts-enabled'].checked=enabled;ids['shortcuts-enabled'].change({target:ids['shortcuts-enabled']});await flush();},
     preferenceChange(enabled){storageHandler({keyboardShortcutsEnabled:{newValue:enabled}},'local');}
+    ,toolbarPreferenceChange(enabled){storageHandler({toolbarAutoHide:{newValue:enabled}},'local');}
   };
 }
 
@@ -161,4 +164,21 @@ test('single-key shortcuts can be disabled, persisted and synchronized between p
   assert.equal(h.ids.toggle.getAttribute('aria-keyshortcuts'),undefined);
   await h.key('m');assert.equal(h.requested,1);
   await h.click('toggle');assert.equal(h.video.paused,true,'buttons continue working when shortcuts are off');
+});
+
+test('auto-hide keeps hidden controls out of focus and supports keyboard reveal', async()=>{
+  const h=await harness({role:'main',toolbarAutoHide:true});
+  assert.equal(h.ids['toolbar-auto-hide'].checked,true);
+  h.ids.more.focus();await h.key('Escape');
+  assert.equal(h.ids['viewer-surface'].inert,true);
+  assert.equal(h.ids['viewer-surface'].getAttribute('aria-hidden'),'true');
+  assert.equal(h.root.activeElement,h.ids['reveal-controls']);
+  await h.key('2');assert.ok(h.messages.some(message=>message.type==='select'&&message.signal===2));
+  const reveal=await h.key('ƒ',{code:'KeyF',altKey:true,shiftKey:true});
+  assert.equal(reveal.stopped,true);
+  assert.equal(h.ids['viewer-surface'].inert,false);
+  assert.equal(h.root.activeElement.dataset.signal,'1');
+  h.toolbarPreferenceChange(false);
+  assert.equal(h.ids['toolbar-auto-hide'].checked,false);
+  assert.equal(h.ids['viewer-surface'].dataset.autoHide,'false');
 });

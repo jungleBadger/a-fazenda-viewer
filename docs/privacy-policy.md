@@ -10,7 +10,7 @@ A extensão acessa elementos do player e seu estado de reprodução nas páginas
 
 Identificadores das abas e janelas, tamanho das janelas, modo de exibição e estado temporário de navegação são guardados apenas na sessão local do Chrome, por meio de `chrome.storage.session`. Não são enviados ao desenvolvedor e não formam um histórico de navegação. O estado do viewer é removido quando sua aba principal é fechada; o armazenamento de sessão também é apagado ao encerrar o navegador, desativar, recarregar ou atualizar a extensão.
 
-A preferência de ativar ou desativar os atalhos é guardada no dispositivo em `chrome.storage.local`, para ser mantida quando você reabre o viewer. Ela não é enviada a um servidor e é removida ao desinstalar a extensão.
+As preferências de ativar ou desativar os atalhos e de ocultar a barra automaticamente são guardadas no dispositivo em `chrome.storage.local`, para serem mantidas quando você reabre o viewer. Elas não são enviadas a um servidor e são removidas ao desinstalar a extensão. A fonte da interface acompanha o pacote; não é carregada de um serviço externo durante o uso.
 
 A extensão não coleta credenciais, informações de pagamento, dados de identidade, mensagens ou conteúdo de outros sites. Não contém telemetria, publicidade, ferramentas de análise ou rastreadores, e não vende ou compartilha dados pessoais.
 
@@ -20,7 +20,7 @@ Login, assinatura, reprodução e limites de uso são administrados pelo própri
 
 ## Permissões
 
-- `storage`: guardar o estado temporário do viewer na sessão e a preferência local dos atalhos.
+- `storage`: guardar o estado temporário do viewer na sessão e as preferências locais dos controles.
 - Acesso a `recordplus.com` e `www.recordplus.com`: adicionar os controles e interagir com o player nas abas do viewer. Não é solicitado acesso a todos os sites.
 
 ## Controle do usuário

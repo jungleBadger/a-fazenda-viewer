@@ -1,4 +1,4 @@
-# Revisão de UX/UI — versão 1.3.0
+# Revisão de UX/UI — versão 1.3.1
 
 Referências: Erik D. Kennedy, [7 Rules for Creating Gorgeous UI — parte 1](https://www.learnui.design/blog/7-rules-for-creating-gorgeous-ui-part-1.html) e [parte 2](https://www.learnui.design/blog/7-rules-for-creating-gorgeous-ui-part-2.html). A revisão aplica seus princípios à barra de um player, onde preservar a área de vídeo importa.
 
@@ -16,9 +16,17 @@ Referências: Erik D. Kennedy, [7 Rules for Creating Gorgeous UI — parte 1](ht
 
 A cobertura só é usada na troca do sinal principal. Não clica em “Ok”, altera login ou autorizações, nem oculta erros indefinidamente. O tempo limite também funciona quando não existe vídeo, a navegação falha ou o DOM chega tarde.
 
+## Espaço de vídeo e tipografia
+
+Na prévia desktop de 1.280 × 800 px, a barra visível reserva 69 px (8,6% da altura). A 940 × 800 px, reserva 121 px (15,1%). Em uma janela de 390 × 700 px, reserva aproximadamente 157 px (22,5%). Por isso, Ocultar barra automaticamente é uma opção, desligada por padrão.
+
+Quando ativada, a barra passa a sobrepor o vídeo e recolhe após 2,5 s sem interação. O player usa toda a altura tanto com a barra aberta quanto recolhida. Ponteiro, foco, menu, dicas de PiP e mensagens da extensão impedem o recolhimento. Mostrar e esconder não provoca saltos no tamanho do vídeo. Botão de abertura, atalho Alt + Shift + F e Escape permitem uso por teclado; controles recolhidos ficam inertes.
+
+A [página oficial do programa no RecordPlus](https://descubra.recordplus.com/afazenda18/) mostra lettering forte, condensado e em caixa alta nas imagens dos sinais. A interpretação do viewer usa Teko Bold apenas no título, com identificação discreta de viewer e temporada; as ações mantêm a fonte de interface. É uma aproximação visual, não uma identificação da fonte exata do logotipo. A fonte vem do [repositório Google Fonts](https://github.com/google/fonts/tree/main/ofl/teko) e acompanha o pacote sob SIL OFL, sem solicitações externas durante o uso.
+
 ## Verificação
 
-31 testes locais cobrem abas, PiP, navegação, atalhos, menu, foco, preferência dos atalhos e o limite da cobertura. A prévia em `tools/preview.html` usa os scripts reais de interface com uma sessão simulada, sem conteúdo do RecordPlus. A revisão visual verifica janelas de desktop e janelas estreitas, seleção e mensagens persistentes.
+37 testes locais cobrem abas, PiP, navegação, atalhos, menu, foco, preferência dos atalhos e o limite da cobertura. A prévia em `tools/preview.html` usa os scripts reais de interface com uma sessão simulada, sem conteúdo do RecordPlus. A revisão visual verifica janelas de desktop e janelas estreitas, seleção e mensagens persistentes.
 
 ## Acessibilidade
 

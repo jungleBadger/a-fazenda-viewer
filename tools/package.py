@@ -6,12 +6,14 @@ import zipfile
 
 root = Path(__file__).resolve().parent.parent
 manifest = json.loads((root / 'manifest.json').read_text())
-files = {'manifest.json', 'LICENSE', manifest['background']['service_worker']}
+files = {'manifest.json', 'LICENSE', 'fonts/OFL.txt', manifest['background']['service_worker']}
 for script in manifest['content_scripts']:
     files.update(script.get('js', []))
     files.update(script.get('css', []))
 files.update(manifest.get('icons', {}).values())
 files.update(manifest.get('action', {}).get('default_icon', {}).values())
+for resource in manifest.get('web_accessible_resources', []):
+    files.update(resource['resources'])
 # viewer-ui.js is also imported by the service worker and is already in this list.
 for file in files:
     path = (root / file).resolve()

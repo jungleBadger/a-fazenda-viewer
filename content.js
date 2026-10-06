@@ -12,6 +12,8 @@
   let presentation = 'side';
   let preparing = false;
   let shortcutsEnabled = true;
+  let toolbarAutoHide = false;
+  let toolbarVisibility;
   const watchedVideos = new WeakSet();
   let host, root;
   const send = async message => {
@@ -38,9 +40,19 @@
       const pressed = String(code === FazendaViewer.urls[Number(button.dataset.signal) - 1].split('/').pop());
       if (button.getAttribute('aria-pressed') !== pressed) button.setAttribute('aria-pressed', pressed);
     });
+    syncToolbarNotice();
+  }
+  function syncToolbarNotice() {
+    if (root) toolbarVisibility?.setGuards({notice:Boolean(root.getElementById('status').textContent.trim()) || !root.getElementById('pip-hint').hidden});
   }
   function report(error) {
     if (root) root.getElementById('status').textContent = `${error.message} Se você atualizou a extensão, recarregue esta página.`;
+    syncToolbarNotice();
+  }
+  function applyToolbarPreference(value) {
+    toolbarAutoHide = Boolean(value);
+    if (root) root.getElementById('toolbar-auto-hide').checked = toolbarAutoHide;
+    toolbarVisibility?.setEnabled(toolbarAutoHide);
   }
   function reflectShortcuts() {
     if (!root) return;
@@ -108,8 +120,8 @@
     host.lang = 'pt-BR';
     host.style.cssText = 'position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:2147483647!important;';
     root = host.attachShadow({ mode: 'open' });
-    root.innerHTML = `<style>${FazendaViewer.styles}</style><div class="bar" role="group" aria-label="Controles do Fazenda viewer">
-    <div class="brand"><strong>${role === 'mosaic' ? 'Mosaico' : 'Fazenda viewer'}</strong><span class="badge">${role === 'mosaic' ? 'Sem som' : 'F18'}</span></div>
+    root.innerHTML = `<style>${FazendaViewer.styles}</style><div class="surface" id="viewer-surface"><div class="bar" role="group" aria-label="Controles do Fazenda viewer">
+    <div class="brand"><div class="brand-name"><strong>${role === 'mosaic' ? 'Mosaico' : 'A Fazenda'}</strong><span class="brand-kind">viewer</span></div><span class="badge">${role === 'mosaic' ? 'Sem som' : 'F18'}</span></div>
     <div class="channels" role="group" aria-label="Selecionar sinal principal">
     ${Array.from({length:6}, (_, i) => `<button type="button" data-signal="${i+1}">Sinal ${i+1}</button>`).join('')}
     </div><div class="modes" role="group" aria-label="Exibir mosaico">
@@ -122,14 +134,23 @@
         <dl class="shortcut-list"><dt><kbd>1 a 6</kbd></dt><dd>Trocar o sinal principal</dd><dt><kbd>M</kbd></dt><dd>${role === 'mosaic' ? 'Abrir ou fechar o miniplayer' : 'Preparar ou fechar o mosaico flutuante'}</dd></dl>
         <label class="shortcut-setting"><input type="checkbox" id="shortcuts-enabled" checked>Ativar atalhos de teclado</label>
         <p>Funcionam nesta página, fora de campos de texto. Para abrir o miniplayer, use M na aba do mosaico.</p>
+        <label class="shortcut-setting"><input type="checkbox" id="toolbar-auto-hide">Ocultar barra automaticamente</label>
+        <p>Reaparece no topo ou com <kbd>Alt + Shift + F</kbd>. Permanece aberta enquanto você usa os controles.</p>
         <a class="github-link" id="github-link" href="https://github.com/jungleBadger/a-fazenda-viewer" target="_blank" rel="noopener noreferrer">Projeto no GitHub<span aria-hidden="true">↗</span><span class="sr-only"> (abre em nova aba)</span></a>
       </section>
     </div></div>
-    <div class="hint" id="pip-hint" hidden>Espere o vídeo carregar e clique em <strong>Abrir miniplayer</strong> (ou pressione M). Você volta ao sinal principal. Deixe esta aba aberta.</div><div class="status" role="status" id="status"></div>`;
+    <div class="hint" id="pip-hint" hidden>Espere o vídeo carregar e clique em <strong>Abrir miniplayer</strong> (ou pressione M). Você volta ao sinal principal. Deixe esta aba aberta.</div><div class="status" role="status" id="status"></div></div>
+    <button type="button" class="reveal-button" id="reveal-controls" aria-label="Mostrar controles" aria-expanded="false" aria-controls="viewer-surface" aria-keyshortcuts="Alt+Shift+F" hidden>Controles <span aria-hidden="true">⌄</span></button>`;
     document.documentElement.append(host);
+    // Register on the document because font-face rules in shadow roots vary by browser.
+    if (typeof FontFace === 'function' && document.fonts) {
+      const typeface = new FontFace('Fazenda Display', `url("${chrome.runtime.getURL('fonts/Teko-Bold.ttf')}")`, {weight:'700',display:'swap'});
+      document.fonts.add(typeface);
+      typeface.load().then(prepare).catch(() => {});
+    }
     const perform = async action => {
       const status = root.getElementById('status');
-      try { status.textContent = ''; await action(); }
+      try { status.textContent = ''; syncToolbarNotice(); await action(); }
       catch (error) { report(error); }
     };
     root.querySelectorAll('[data-signal]').forEach(button => button.addEventListener('click', () => perform(() => selectSignal(Number(button.dataset.signal)))));
@@ -144,9 +165,40 @@
     const more = root.getElementById('more');
     const morePanel = root.getElementById('more-panel');
     const moreGroup = root.getElementById('more-group');
+    const surface = root.getElementById('viewer-surface');
+    const revealButton = root.getElementById('reveal-controls');
+    toolbarVisibility = FazendaToolbar.create({render:({enabled, expanded}) => {
+      surface.dataset.autoHide = String(enabled);
+      surface.dataset.collapsed = String(!expanded);
+      surface.inert = !expanded;
+      if (expanded) surface.removeAttribute('aria-hidden'); else surface.setAttribute('aria-hidden', 'true');
+      revealButton.hidden = !enabled || expanded;
+      revealButton.setAttribute('aria-expanded', String(expanded));
+      prepare();
+    }});
+    applyToolbarPreference(toolbarAutoHide);
+    const revealToolbar = (focus = false) => {
+      const focusWasOnHandle = root.activeElement === revealButton;
+      toolbarVisibility.reveal();
+      if (focus || focusWasOnHandle) root.querySelectorAll('[data-signal]')[0].focus();
+    };
+    revealButton.addEventListener('click', () => revealToolbar(true));
+    revealButton.addEventListener('pointerenter', () => revealToolbar());
+    surface.addEventListener('pointerenter', () => toolbarVisibility.setGuards({hovered:true}));
+    surface.addEventListener('pointerleave', () => toolbarVisibility.setGuards({hovered:false}));
+    surface.addEventListener('focusin', () => toolbarVisibility.setGuards({focused:true}));
+    surface.addEventListener('focusout', () => requestAnimationFrame(() => toolbarVisibility.setGuards({focused:surface.contains(root.activeElement)})));
+    window.addEventListener('pointermove', event => {
+      if (toolbarAutoHide && event.clientY <= 8) revealToolbar();
+    });
+    root.getElementById('toolbar-auto-hide').addEventListener('change', event => {
+      applyToolbarPreference(event.target.checked);
+      chrome.storage.local.set({toolbarAutoHide}).catch(report);
+    });
     const setMoreOpen = (open, returnFocus = false) => {
       more.setAttribute('aria-expanded', String(open));
       morePanel.hidden = !open;
+      toolbarVisibility.setGuards({menu:open});
       if (returnFocus) more.focus();
     };
     more.addEventListener('click', () => setMoreOpen(morePanel.hidden));
@@ -164,6 +216,11 @@
     reflectShortcuts();
     // Capture shortcuts before the player handles number seeking or M for mute.
     window.addEventListener('keydown', event => {
+      if (toolbarAutoHide && event.altKey && event.shiftKey && !event.ctrlKey && !event.metaKey && !event.isComposing && (event.code === 'KeyF' || event.key.toLowerCase() === 'f')) {
+        event.preventDefault(); event.stopImmediatePropagation();
+        revealToolbar(true);
+        return;
+      }
       if (!morePanel.hidden) {
         if (event.key === 'Escape') {
           event.preventDefault();
@@ -174,6 +231,13 @@
           event.preventDefault();
           event.stopImmediatePropagation();
         }
+        return;
+      }
+      if (toolbarAutoHide && event.key === 'Escape' && surface.contains(root.activeElement) && !root.getElementById('status').textContent.trim() && root.getElementById('pip-hint').hidden) {
+        event.preventDefault(); event.stopImmediatePropagation();
+        revealButton.hidden = false; revealButton.focus();
+        toolbarVisibility.setGuards({focused:false, hovered:false});
+        toolbarVisibility.collapse();
         return;
       }
       if (!shortcutsEnabled) return;
@@ -190,9 +254,9 @@
       else root.getElementById('toggle').click();
     }, {capture:true});
     // Expand a recognized native player without moving its video or controls.
-    const prepare = () => {
+    function prepare() {
       if (!host.isConnected) document.documentElement.append(host);
-      const height = Math.ceil(host.getBoundingClientRect().height);
+      const height = toolbarAutoHide ? 0 : Math.ceil(host.getBoundingClientRect().height);
       globalThis.FazendaTransition?.resize(height);
       const video = document.querySelector('video');
       if (video) watchVideo(video);
@@ -208,7 +272,7 @@
         for (const [key,value] of Object.entries(values)) if (player.style.getPropertyValue(key) !== value) player.style.setProperty(key,value,'important');
       }
       reflect();
-    };
+    }
     prepare();
     let scheduled = false;
     new MutationObserver(() => {
@@ -242,14 +306,16 @@
       shortcutsEnabled = changes.keyboardShortcutsEnabled.newValue !== false;
       reflectShortcuts();
     }
+    if (area === 'local' && changes.toolbarAutoHide) applyToolbarPreference(changes.toolbarAutoHide.newValue);
   });
   let attempts = 0;
   async function connect() {
     try {
       const state = await send({type:'state'});
       if (state?.managed) {
-        const preferences = await chrome.storage.local.get({keyboardShortcutsEnabled:true});
+        const preferences = await chrome.storage.local.get({keyboardShortcutsEnabled:true, toolbarAutoHide:false});
         shortcutsEnabled = preferences.keyboardShortcutsEnabled !== false;
+        toolbarAutoHide = preferences.toolbarAutoHide === true;
         visible = state.visible;
         preparing = Boolean(state.preparing);
         presentation = state.presentation || 'side';

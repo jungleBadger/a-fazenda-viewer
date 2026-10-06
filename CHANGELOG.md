@@ -1,12 +1,16 @@
 # Changelog
 
-## Não publicado
+## 1.3.1 — 5 de outubro de 2026 (versão de teste)
+
+- Adicionar Ocultar barra automaticamente como opção, mantendo a barra visível por padrão. Nesse modo, o player usa toda a altura; mostrar ou esconder os controles não redimensiona o vídeo.
+- Recolher após 2,5 s fora dos controles e reabrir no topo, pelo botão Controles ou com Alt + Shift + F. Preservar foco, menus, dicas de PiP e mensagens de erro.
+- Aproximar o título da identidade do programa com Teko em caixa alta, mantendo as ações em uma fonte de interface legível. Incluir a fonte e sua licença localmente.
 
 - Dar transparência leve à barra, com fundo opaco quando o usuário solicita menos transparência.
 - Reunir ajuda dos atalhos e link do GitHub em Mais opções, à direita da barra.
 - Permitir desativar os atalhos de uma tecla, salvar a preferência no dispositivo e sincronizá-la entre as abas do viewer.
 - Preservar navegação por Tab, foco visível e fechamento do menu com Escape, devolvendo foco ao botão; melhorar rótulos e suporte a alto contraste.
-- Ampliar a verificação para 31 testes.
+- Ampliar a verificação para 37 testes.
 - Acrescentar licença MIT ao repositório e ao pacote; simplificar o README e separar guias de uso e desenvolvimento.
 
 ## 1.3.0 — 5 de outubro de 2026

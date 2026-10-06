@@ -25,6 +25,18 @@ O botão **Mais opções** (⋮), à direita da barra, reúne a ajuda dos atalho
 - Esses atalhos substituem a função original das teclas no player (por exemplo, silenciar com M).
 - Os controles originais de reprodução, login e tela cheia continuam no RecordPlus.
 
+## Barra automática
+
+A barra fica visível por padrão. Em **Mais opções**, ative **Ocultar barra automaticamente** para recolhê-la após 2,5 s sem interação. Nesse modo, o player ocupa toda a altura; a barra aparece sobre o vídeo quando você precisa dela, sem mudar o tamanho do player a cada abertura.
+
+- Mova o ponteiro até o topo para mostrar os controles, ou use o botão **Controles**.
+- **Alt + Shift + F** mostra a barra e leva o foco ao primeiro sinal. No Mac, Alt corresponde a Option. Esse atalho continua disponível com as teclas 1–6 e M desligadas.
+- A barra não recolhe com o ponteiro ou foco dentro dela, com o menu aberto, nem com dicas de PiP ou mensagens da extensão pendentes.
+- **Escape** fecha primeiro o menu. Com foco na barra, Escape recolhe os controles e leva o foco ao botão de abertura, quando não há mensagens pendentes.
+- Os controles recolhidos saem da ordem de Tab e da árvore de acessibilidade. O botão de abertura continua disponível. A preferência é mantida no dispositivo e vale para as abas do viewer.
+
+![Prévia com a barra recolhida, sem transmissão ao vivo](../store/ui-preview-auto-hide.jpg)
+
 ## Ver lado a lado
 
 **Ver lado a lado** conserva o modo anterior. Em versões com Split View disponível à extensão, usa a divisão nativa da janela. Nas demais versões, abre duas janelas dedicadas, com o mosaico sem som. **Ocultar lado a lado** pausa e conserva o mosaico, restaurando o tamanho do principal.
