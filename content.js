@@ -36,6 +36,11 @@
     if (side.getAttribute('aria-pressed') !== String(visible && presentation === 'side')) side.setAttribute('aria-pressed', String(visible && presentation === 'side'));
     root.getElementById('pip-hint').hidden = currentRole !== 'mosaic' || presentation !== 'pip' || visible;
     const code = location.pathname.split('/').pop();
+    const signalIndex = FazendaViewer.urls.slice(0, 6).findIndex(url => code === url.split('/').pop());
+    const collapsedLabel = currentRole === 'mosaic' ? 'Mosaico' : signalIndex >= 0 ? `Sinal ${signalIndex + 1}` : 'Controles';
+    const revealLabel = root.getElementById('reveal-label');
+    if (revealLabel.textContent !== collapsedLabel) revealLabel.textContent = collapsedLabel;
+    root.getElementById('reveal-controls').setAttribute('aria-label', `Mostrar controles: ${collapsedLabel}`);
     root.querySelectorAll('[data-signal]').forEach(button => {
       const pressed = String(code === FazendaViewer.urls[Number(button.dataset.signal) - 1].split('/').pop());
       if (button.getAttribute('aria-pressed') !== pressed) button.setAttribute('aria-pressed', pressed);
@@ -121,7 +126,7 @@
     host.style.cssText = 'position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:2147483647!important;';
     root = host.attachShadow({ mode: 'open' });
     root.innerHTML = `<style>${FazendaViewer.styles}</style><div class="surface" id="viewer-surface"><div class="bar" role="group" aria-label="Controles do Fazenda viewer">
-    <div class="brand"><div class="brand-name"><strong>${role === 'mosaic' ? 'Mosaico' : 'A Fazenda'}</strong><span class="brand-kind">viewer</span></div><span class="badge">${role === 'mosaic' ? 'Sem som' : 'F18'}</span></div>
+    <div class="brand"><div class="brand-name"><strong>${role === 'mosaic' ? 'Mosaico' : 'A Fazenda'}</strong><span class="brand-kind">viewer</span></div>${role === 'mosaic' ? '<span class="badge">Sem som</span>' : ''}</div>
     <div class="channels" role="group" aria-label="Selecionar sinal principal">
     ${Array.from({length:6}, (_, i) => `<button type="button" data-signal="${i+1}">Sinal ${i+1}</button>`).join('')}
     </div><div class="modes" role="group" aria-label="Exibir mosaico">
@@ -135,12 +140,12 @@
         <label class="shortcut-setting"><input type="checkbox" id="shortcuts-enabled" checked>Ativar atalhos de teclado</label>
         <p>Funcionam nesta página, fora de campos de texto. Para abrir o miniplayer, use M na aba do mosaico.</p>
         <label class="shortcut-setting"><input type="checkbox" id="toolbar-auto-hide">Ocultar barra automaticamente</label>
-        <p>Reaparece no topo ou com <kbd>Alt + Shift + F</kbd>. Permanece aberta enquanto você usa os controles.</p>
-        <a class="github-link" id="github-link" href="https://github.com/jungleBadger/a-fazenda-viewer" target="_blank" rel="noopener noreferrer">Projeto no GitHub<span aria-hidden="true">↗</span><span class="sr-only"> (abre em nova aba)</span></a>
+        <p>Ao ativar, a barra recolhe. Reaparece no topo ou com <kbd>Alt + Shift + F</kbd> e permanece aberta enquanto você usa os controles.</p>
+        <a class="github-link" id="github-link" href="https://github.com/jungleBadger/a-fazenda-viewer" target="_blank" rel="noopener noreferrer">Projeto no GitHub<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3h7v7M21 3l-11 11M10 3H3v18h18v-7"/></svg><span class="sr-only"> (abre em nova aba)</span></a>
       </section>
     </div></div>
     <div class="hint" id="pip-hint" hidden>Espere o vídeo carregar e clique em <strong>Abrir miniplayer</strong> (ou pressione M). Você volta ao sinal principal. Deixe esta aba aberta.</div><div class="status" role="status" id="status"></div></div>
-    <button type="button" class="reveal-button" id="reveal-controls" aria-label="Mostrar controles" aria-expanded="false" aria-controls="viewer-surface" aria-keyshortcuts="Alt+Shift+F" hidden>Controles <span aria-hidden="true">⌄</span></button>`;
+    <button type="button" class="reveal-button" id="reveal-controls" aria-label="Mostrar controles" aria-expanded="false" aria-controls="viewer-surface" aria-keyshortcuts="Alt+Shift+F" hidden><span id="reveal-label">Controles</span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg></button>`;
     document.documentElement.append(host);
     // Register on the document because font-face rules in shadow roots vary by browser.
     if (typeof FontFace === 'function' && document.fonts) {
@@ -168,6 +173,7 @@
     const surface = root.getElementById('viewer-surface');
     const revealButton = root.getElementById('reveal-controls');
     toolbarVisibility = FazendaToolbar.create({render:({enabled, expanded}) => {
+      const focusWasOnHandle = root.activeElement === revealButton;
       surface.dataset.autoHide = String(enabled);
       surface.dataset.collapsed = String(!expanded);
       surface.inert = !expanded;
@@ -175,12 +181,25 @@
       revealButton.hidden = !enabled || expanded;
       revealButton.setAttribute('aria-expanded', String(expanded));
       prepare();
+      if (expanded && focusWasOnHandle) focusSelectedSignal();
     }});
     applyToolbarPreference(toolbarAutoHide);
     const revealToolbar = (focus = false) => {
       const focusWasOnHandle = root.activeElement === revealButton;
       toolbarVisibility.reveal();
-      if (focus || focusWasOnHandle) root.querySelectorAll('[data-signal]')[0].focus();
+      if (focus || focusWasOnHandle) focusSelectedSignal();
+    };
+    function focusSelectedSignal() {
+      const signals = [...root.querySelectorAll('[data-signal]')];
+      (signals.find(button => button.getAttribute('aria-pressed') === 'true') || signals[0]).focus();
+    }
+    const collapseToolbar = () => {
+      if (root.getElementById('status').textContent.trim() || !root.getElementById('pip-hint').hidden) return false;
+      // Move focus before making the bar inert, so keyboard users keep a control.
+      revealButton.hidden = false;
+      revealButton.focus();
+      toolbarVisibility.setGuards({focused:false, hovered:false});
+      return toolbarVisibility.collapse();
     };
     revealButton.addEventListener('click', () => revealToolbar(true));
     revealButton.addEventListener('pointerenter', () => revealToolbar());
@@ -191,16 +210,20 @@
     window.addEventListener('pointermove', event => {
       if (toolbarAutoHide && event.clientY <= 8) revealToolbar();
     });
-    root.getElementById('toolbar-auto-hide').addEventListener('change', event => {
-      applyToolbarPreference(event.target.checked);
-      chrome.storage.local.set({toolbarAutoHide}).catch(report);
-    });
     const setMoreOpen = (open, returnFocus = false) => {
       more.setAttribute('aria-expanded', String(open));
       morePanel.hidden = !open;
       toolbarVisibility.setGuards({menu:open});
       if (returnFocus) more.focus();
     };
+    root.getElementById('toolbar-auto-hide').addEventListener('change', event => {
+      applyToolbarPreference(event.target.checked);
+      if (toolbarAutoHide) {
+        setMoreOpen(false);
+        if (!collapseToolbar()) more.focus();
+      }
+      chrome.storage.local.set({toolbarAutoHide}).catch(report);
+    });
     more.addEventListener('click', () => setMoreOpen(morePanel.hidden));
     moreGroup.addEventListener('focusout', event => {
       if (event.relatedTarget && !moreGroup.contains(event.relatedTarget)) setMoreOpen(false);
@@ -235,9 +258,7 @@
       }
       if (toolbarAutoHide && event.key === 'Escape' && surface.contains(root.activeElement) && !root.getElementById('status').textContent.trim() && root.getElementById('pip-hint').hidden) {
         event.preventDefault(); event.stopImmediatePropagation();
-        revealButton.hidden = false; revealButton.focus();
-        toolbarVisibility.setGuards({focused:false, hovered:false});
-        toolbarVisibility.collapse();
+        collapseToolbar();
         return;
       }
       if (!shortcutsEnabled) return;

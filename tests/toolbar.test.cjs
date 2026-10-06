@@ -47,6 +47,14 @@ test('unchanged player updates cannot postpone hiding indefinitely', ()=>{
   assert.equal(h.state.expanded,false);
 });
 
+test('repeated preference notifications preserve the hide deadline and collapsed state', ()=>{
+  const h=harness();h.toolbar.setEnabled(true);h.advance(1500);
+  h.toolbar.setEnabled(true);h.advance(1000);
+  assert.equal(h.state.expanded,false,'a storage echo must not restart the deadline');
+  h.toolbar.setEnabled(true);
+  assert.equal(h.state.expanded,false,'a storage echo must not reopen the bar');
+});
+
 test('reveal restores controls, and disabling auto-hide cancels pending timers', ()=>{
   const h=harness();h.toolbar.setEnabled(true);h.advance(2500);
   h.toolbar.reveal();assert.equal(h.state.expanded,true);

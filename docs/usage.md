@@ -27,10 +27,10 @@ O botão **Mais opções** (⋮), à direita da barra, reúne a ajuda dos atalho
 
 ## Barra automática
 
-A barra fica visível por padrão. Em **Mais opções**, ative **Ocultar barra automaticamente** para recolhê-la após 2,5 s sem interação. Nesse modo, o player ocupa toda a altura; a barra aparece sobre o vídeo quando você precisa dela, sem mudar o tamanho do player a cada abertura.
+A barra fica visível por padrão. Em **Mais opções**, ative **Ocultar barra automaticamente** para recolhê-la imediatamente. Depois de reabrir, ela recolhe após 2,5 s sem interação. Nesse modo, o player ocupa toda a altura; a barra aparece sobre o vídeo quando você precisa dela, sem mudar o tamanho do player a cada abertura.
 
-- Mova o ponteiro até o topo para mostrar os controles, ou use o botão **Controles**.
-- **Alt + Shift + F** mostra a barra e leva o foco ao primeiro sinal. No Mac, Alt corresponde a Option. Esse atalho continua disponível com as teclas 1–6 e M desligadas.
+- Mova o ponteiro até o topo para mostrar os controles, ou use o botão no canto superior esquerdo, identificado pelo sinal atual (por exemplo, **Sinal 4**) ou **Mosaico**.
+- **Alt + Shift + F** mostra a barra e leva o foco ao sinal selecionado (ou ao primeiro sinal na aba do mosaico). No Mac, Alt corresponde a Option. Esse atalho continua disponível com as teclas 1–6 e M desligadas.
 - A barra não recolhe com o ponteiro ou foco dentro dela, com o menu aberto, nem com dicas de PiP ou mensagens da extensão pendentes.
 - **Escape** fecha primeiro o menu. Com foco na barra, Escape recolhe os controles e leva o foco ao botão de abertura, quando não há mensagens pendentes.
 - Os controles recolhidos saem da ordem de Tab e da árvore de acessibilidade. O botão de abertura continua disponível. A preferência é mantida no dispositivo e vale para as abas do viewer.

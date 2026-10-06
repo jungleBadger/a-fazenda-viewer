@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.2 — 5 de outubro de 2026 (versão de teste)
+
+- Aplicar Ocultar barra automaticamente na página atual: fechar o menu e recolher imediatamente ao ativar. Sincronizar a preferência sem reabrir a barra ou reiniciar o prazo.
+- Mostrar o sinal selecionado no botão recolhido, no canto superior esquerdo, com ícone de 16 px e alvo de 40 px de altura. Ao reabrir, levar o foco ao sinal selecionado.
+- Dar ao link do GitHub toda a largura interna do painel e altura constante de 44 px, com foco e estado de hover em toda a área.
+- Retirar a etiqueta F18 da barra principal; manter Sem som na aba do mosaico.
+- Atualizar as capturas e ampliar a verificação para 41 testes.
+
 ## 1.3.1 — 5 de outubro de 2026 (versão de teste)
 
 - Adicionar Ocultar barra automaticamente como opção, mantendo a barra visível por padrão. Nesse modo, o player usa toda a altura; mostrar ou esconder os controles não redimensiona o vídeo.

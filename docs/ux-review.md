@@ -1,4 +1,4 @@
-# Revisão de UX/UI — versão 1.3.1
+# Revisão de UX/UI — versão 1.3.2
 
 Referências: Erik D. Kennedy, [7 Rules for Creating Gorgeous UI — parte 1](https://www.learnui.design/blog/7-rules-for-creating-gorgeous-ui-part-1.html) e [parte 2](https://www.learnui.design/blog/7-rules-for-creating-gorgeous-ui-part-2.html). A revisão aplica seus princípios à barra de um player, onde preservar a área de vídeo importa.
 
@@ -20,19 +20,19 @@ A cobertura só é usada na troca do sinal principal. Não clica em “Ok”, al
 
 Na prévia desktop de 1.280 × 800 px, a barra visível reserva 69 px (8,6% da altura). A 940 × 800 px, reserva 121 px (15,1%). Em uma janela de 390 × 700 px, reserva aproximadamente 157 px (22,5%). Por isso, Ocultar barra automaticamente é uma opção, desligada por padrão.
 
-Quando ativada, a barra passa a sobrepor o vídeo e recolhe após 2,5 s sem interação. O player usa toda a altura tanto com a barra aberta quanto recolhida. Ponteiro, foco, menu, dicas de PiP e mensagens da extensão impedem o recolhimento. Mostrar e esconder não provoca saltos no tamanho do vídeo. Botão de abertura, atalho Alt + Shift + F e Escape permitem uso por teclado; controles recolhidos ficam inertes.
+Ao ativar a opção, o menu fecha e a barra recolhe imediatamente, com foco no botão de abertura. Depois de reabrir, recolhe após 2,5 s sem interação. Nesse modo, os controles sobrepõem o vídeo. O player usa toda a altura tanto com a barra aberta quanto recolhida. Ponteiro, foco, menu, dicas de PiP e mensagens da extensão impedem o recolhimento. Mostrar e esconder não provoca saltos no tamanho do vídeo. Botão de abertura, atalho Alt + Shift + F e Escape permitem uso por teclado; controles recolhidos ficam inertes.
 
-A [página oficial do programa no RecordPlus](https://descubra.recordplus.com/afazenda18/) mostra lettering forte, condensado e em caixa alta nas imagens dos sinais. A interpretação do viewer usa Teko Bold apenas no título, com identificação discreta de viewer e temporada; as ações mantêm a fonte de interface. É uma aproximação visual, não uma identificação da fonte exata do logotipo. A fonte vem do [repositório Google Fonts](https://github.com/google/fonts/tree/main/ofl/teko) e acompanha o pacote sob SIL OFL, sem solicitações externas durante o uso.
+A [página oficial do programa no RecordPlus](https://descubra.recordplus.com/afazenda18/) mostra lettering forte, condensado e em caixa alta nas imagens dos sinais. A interpretação do viewer usa Teko Bold apenas no título, com identificação discreta de viewer; as ações mantêm a fonte de interface. É uma aproximação visual, não uma identificação da fonte exata do logotipo. A fonte vem do [repositório Google Fonts](https://github.com/google/fonts/tree/main/ofl/teko) e acompanha o pacote sob SIL OFL, sem solicitações externas durante o uso.
 
 ## Verificação
 
-37 testes locais cobrem abas, PiP, navegação, atalhos, menu, foco, preferência dos atalhos e o limite da cobertura. A prévia em `tools/preview.html` usa os scripts reais de interface com uma sessão simulada, sem conteúdo do RecordPlus. A revisão visual verifica janelas de desktop e janelas estreitas, seleção e mensagens persistentes.
+41 testes locais cobrem abas, PiP, navegação, atalhos, menu, foco, preferência dos atalhos e o limite da cobertura. A prévia em `tools/preview.html` usa os scripts reais de interface com uma sessão simulada, sem conteúdo do RecordPlus. A revisão visual verifica janelas de desktop e janelas estreitas, seleção e mensagens persistentes.
 
 ## Acessibilidade
 
 Mais opções segue o [padrão de divulgação de conteúdo do W3C](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/): botão nativo com nome, `aria-expanded` e `aria-controls`, conteúdo oculto quando fechado e controles nativos dentro do painel. Enter e Espaço abrem e fecham; Tab segue a ordem normal, sem prender o foco; Escape fecha e devolve foco ao botão. Clique fora e saída de foco para outro controle também fecham o painel.
 
-O link do GitHub informa que abre em nova aba. O painel e as ações têm rótulos em português, foco visível e tamanho adequado; o botão Mais opções tem 44 × 44 px. A barra também respeita movimento reduzido, transparência reduzida e cores forçadas.
+O botão de abertura mostra o sinal atual no canto superior esquerdo, tem 40 px de altura e um ícone de 16 px; ao reabrir por teclado, o foco vai ao sinal selecionado. O link do GitHub informa que abre em nova aba e ocupa toda a largura interna do painel, com 44 px de altura. O painel e as ações têm rótulos em português, foco visível e tamanho adequado; o botão Mais opções tem 44 × 44 px. A barra também respeita movimento reduzido, transparência reduzida e cores forçadas.
 
 A opção de desativar atalhos atende ao mecanismo previsto pelo [WCAG 2.1.4 para atalhos de caracteres](https://www.w3.org/WAI/WCAG22/Understanding/character-key-shortcuts.html), ajudando a evitar acionamento acidental por entrada de voz. A preferência persiste no dispositivo. As teclas ficam suspensas enquanto o painel está aberto; os botões continuam disponíveis com os atalhos desligados.
 

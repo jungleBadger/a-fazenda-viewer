@@ -22,7 +22,10 @@
       };
       return {
         setEnabled(value) {
-          enabled = Boolean(value); expanded = true; emit(); schedule();
+          const next = Boolean(value);
+          // Storage echoes the local change back to this page; preserve its state.
+          if (last && enabled === next) return;
+          enabled = next; expanded = true; emit(); schedule();
         },
         reveal() { if (enabled) { expanded = true; emit(); schedule(); } },
         collapse() {

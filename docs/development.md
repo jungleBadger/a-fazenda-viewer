@@ -7,7 +7,7 @@ node --test tests/*.test.cjs
 python3 tools/package.py
 ```
 
-Os 37 testes locais simulam a API do Chrome e o player para verificar criação e reutilização das abas, troca de sinais, fallback lado a lado, eventos de PiP, pausa, atalhos e bloqueios de PiP. Também verificam o prazo da cobertura, erros de navegação, a preservação do PiP nativo do sinal principal, abertura e fechamento do menu, foco, preferências e proteção contra recolhimento durante a interação.
+Os 41 testes locais simulam a API do Chrome e o player para verificar criação e reutilização das abas, troca de sinais, fallback lado a lado, eventos de PiP, pausa, atalhos e bloqueios de PiP. Também verificam o prazo da cobertura, erros de navegação, a preservação do PiP nativo do sinal principal, abertura e fechamento do menu, foco, preferências e proteção contra recolhimento durante a interação, aplicação imediata da opção, sincronização sem reabrir a barra e identificação do sinal recolhido.
 
 O ZIP em `dist/` inclui o manifesto, os scripts utilizados, os ícones, a fonte local e as licenças. Não inclui testes, documentação ou capturas. Os testes e o empacotamento também rodam no GitHub a cada alteração enviada.
 
