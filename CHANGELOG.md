@@ -1,5 +1,14 @@
 # Changelog
 
+## Não publicado
+
+- Dar transparência leve à barra, com fundo opaco quando o usuário solicita menos transparência.
+- Reunir ajuda dos atalhos e link do GitHub em Mais opções, à direita da barra.
+- Permitir desativar os atalhos de uma tecla, salvar a preferência no dispositivo e sincronizá-la entre as abas do viewer.
+- Preservar navegação por Tab, foco visível e fechamento do menu com Escape, devolvendo foco ao botão; melhorar rótulos e suporte a alto contraste.
+- Ampliar a verificação para 31 testes.
+- Acrescentar licença MIT ao repositório e ao pacote; simplificar o README e separar guias de uso e desenvolvimento.
+
 ## 1.3.0 — 5 de outubro de 2026
 
 - Identificar o escopo da versão como A Fazenda 18.

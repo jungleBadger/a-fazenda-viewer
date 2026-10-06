@@ -6,7 +6,7 @@ import zipfile
 
 root = Path(__file__).resolve().parent.parent
 manifest = json.loads((root / 'manifest.json').read_text())
-files = {'manifest.json', manifest['background']['service_worker']}
+files = {'manifest.json', 'LICENSE', manifest['background']['service_worker']}
 for script in manifest['content_scripts']:
     files.update(script.get('js', []))
     files.update(script.get('css', []))
